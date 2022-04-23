@@ -1,0 +1,65 @@
+<div class="card card-chart">
+    <div class="card-header">
+        <h5 class="card-title">
+            List of Things
+        </h5>
+        <p class="card-category">
+            This table list your things and the properties it contains.
+        </p>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table">
+                <thead class=" text-primary">
+                    <th>
+                        Thing
+                    </th>
+                    <th>
+                        Properties
+                    </th>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let thing of things; let iThing = index">
+                        <td style="vertical-align: top;">
+                            Name: {{thing.name}}<br>
+                            <span style="font-size:x-small">
+                                Id: {{thing.id}}<br>
+                                Description: {{thing.description}}<br>
+                                Type: {{thing.type}}
+                            </span>
+                        </td>
+                        <td>
+                            <ul *ngFor="let property of thing.properties; let iProperty = index">
+                                <li>
+                                    Name: {{property.name}}<br>
+                                    <span style="font-size:x-small">
+                                        Id: {{property.id}}<br>
+                                        Description: {{property.description}}<br>
+                                        Type Id: {{property.type.id}}
+                                    </span>
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card-footer">
+        <hr />
+        <p>
+            The HTTP request for this is:
+        </p>
+        <code>
+            /bucket/api/things
+        </code>
+        <hr />
+        <p>
+            In Angular, you can use the Bucket service of this template and get the list of
+            Things as follows. You can find it in the code of this component in src/app/myapp/things/things.componentt.ts
+        </p>
+        <code>
+            things = await this.bucketService.find()
+        </code>
+    </div>
+</div>

@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  myapp:
+    build:
+      context: .
+      args:
+        - BASE_HREF=$MYAPP_BASE_HREF
+        - DEPLOY_URL=$MYAPP_DEPLOY_URL
+        - CONFIGURATION=$MYAPP_CONFIGURATION
+    container_name: myapp
+    environment:
+     - NGINX_HOST=$MYAPP_HOST
+     - NGINX_PORT=$MYAPP_PORT

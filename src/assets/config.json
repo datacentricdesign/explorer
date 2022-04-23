@@ -1,0 +1,20 @@
+{
+    "name": "My App",
+    "version": "0.0.1",
+    "environment": "development",
+    "basehref": "myapp",
+    "apiURL": "https://dwd.tudelft.nl/bucket/api",
+    "authCodeFlow": {
+        "issuer": "https://dwd.tudelft.nl:443/",
+        "redirectUri": "http://localhost:4200/myapp",
+        "postLogoutRedirectUri": "http://localhost:4200/myapp/about",
+        "clientId": "clients:myapp",
+        "responseType": "code",
+        "scope": "openid offline profile email dcd:public dcd:things dcd:properties",
+        "useSilentRefresh": false,
+        "showDebugInformation": true,
+        "sessionChecksEnabled": false,
+        "timeoutFactor": 0.01,
+        "clearHashAfterLogin": false
+      }
+}

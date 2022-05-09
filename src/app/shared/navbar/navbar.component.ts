@@ -5,7 +5,9 @@ import { Location } from '@angular/common';
 import { OAuthService } from 'angular-oauth2-oidc';
 import { Download, BucketService } from 'app/myapp/services/bucket.service';
 import { Observable } from 'rxjs';
-
+import { Period, periods } from '../chart-elements';
+import { EventService } from 'app/myapp/services/event.service';
+import { AppEvent, AppEventType } from 'app/myapp/services/app.event.class';
 
 interface UserProfile {
   name: string;
@@ -27,6 +29,18 @@ export class NavbarComponent implements OnInit {
   private sidebarVisible: boolean;
   public userProfile: UserProfile;
 
+
+  public periods: Map<string, Period>
+  public selectedPeriod: Period
+
+  public model = {
+    startDate: new Date(),
+    startTime: '00:00:00',
+    endDate: new Date(),
+    endTime: '00:00:00',
+    live: false,
+  }
+
   private download$: Observable<Download>;
   private takeoutInProgress: boolean = false;
 
@@ -39,10 +53,12 @@ export class NavbarComponent implements OnInit {
     private element: ElementRef,
     private router: Router,
     private oauthService: OAuthService,
-    private bucketService: BucketService) {
+    private bucketService: BucketService,
+    private eventService: EventService) {
     this.location = location;
     this.nativeElement = element.nativeElement;
     this.sidebarVisible = false;
+    this.periods = periods
   }
 
   ngOnInit() {
@@ -60,6 +76,7 @@ export class NavbarComponent implements OnInit {
       }
     }
   }
+
   getTitle() {
     let titlee = this.location.prepareExternalUrl(this.location.path());
     if (titlee.charAt(0) === '#') {
@@ -70,8 +87,9 @@ export class NavbarComponent implements OnInit {
         return this.listTitles[item].title;
       }
     }
-    return 'Dashboard';
+    return 'Data Explorer';
   }
+
   sidebarToggle() {
     if (this.sidebarVisible === false) {
       this.sidebarOpen();
@@ -79,6 +97,7 @@ export class NavbarComponent implements OnInit {
       this.sidebarClose();
     }
   }
+
   sidebarOpen() {
     const toggleButton = this.toggleButton;
     const html = document.getElementsByTagName('html')[0];
@@ -92,7 +111,8 @@ export class NavbarComponent implements OnInit {
       mainPanel.style.position = 'fixed';
     }
     this.sidebarVisible = true;
-  };
+  }
+
   sidebarClose() {
     const html = document.getElementsByTagName('html')[0];
     const mainPanel = <HTMLElement>document.getElementsByClassName('main-panel')[0];
@@ -104,7 +124,8 @@ export class NavbarComponent implements OnInit {
     this.toggleButton.classList.remove('toggled');
     this.sidebarVisible = false;
     html.classList.remove('nav-open');
-  };
+  }
+
   collapse() {
     this.isCollapsed = !this.isCollapsed;
     const navbar = document.getElementsByTagName('nav')[0];
@@ -117,6 +138,7 @@ export class NavbarComponent implements OnInit {
     }
 
   }
+
   logout() {
     this.oauthService.logOut();
     this.oauthService.revokeTokenAndLogout();
@@ -150,5 +172,20 @@ export class NavbarComponent implements OnInit {
     } else {
       console.log('ignoring takeout, already ongoing')
     }
+  }
+
+  selectRelativeTimeRange(periodKey: string) {
+    this.selectedPeriod = this.periods.get(periodKey)
+    this.eventService.dispatch(new AppEvent(AppEventType.ChangedTimeRange, this.selectedPeriod));
+  }
+
+  selectAbsoluteTimeRange() {
+    this.eventService.dispatch(new AppEvent(AppEventType.ChangedTimeRange, {
+      from: this.model.startDate.getTime() + new Date('1970-01-01T' + this.model.startTime + 'Z').getTime(),
+      to: this.model.endDate.getTime() + new Date('1970-01-01T' + this.model.endTime + 'Z').getTime(),
+      fctInterval: undefined,
+      fill: undefined,
+      timeInterval: undefined
+    }));
   }
 }

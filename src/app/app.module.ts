@@ -20,6 +20,7 @@ import { BrowserModule } from '@angular/platform-browser'
 import { SharedModule } from './shared/shared.module';
 import { AppService } from './app.service';
 import { PublicComponent } from './public/public.component'
+import { NgChartsModule } from 'ng2-charts'
 
 export function init_app(appService: AppService) {
   return () => appService.load();
@@ -31,7 +32,7 @@ export function init_app(appService: AppService) {
     BrowserAnimationsModule,
     RouterModule.forRoot(AppRoutes, {
       useHash: false,
-      initialNavigation: true
+      initialNavigation: "enabled"
     }),
     SidebarModule,
     NavbarModule,
@@ -46,7 +47,8 @@ export function init_app(appService: AppService) {
         allowedUrls: ['https://dwd.tudelft.nl'],
         sendAccessToken: true
       }
-    })
+    }),
+    NgChartsModule
   ],
   declarations: [
     AppComponent,

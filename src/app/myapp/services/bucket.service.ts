@@ -1,14 +1,11 @@
 import { Injectable, Inject } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams, HttpEvent, HttpResponse, HttpEventType, HttpProgressEvent } from '@angular/common/http';
-import { BASE_URL } from '../../app.tokens';
 import { Observable } from 'rxjs';
 import { Thing, PropertyType, DTOThing, DTOProperty, ValueOptions, Property } from '@datacentricdesign/types';
 import { OAuthService } from 'angular-oauth2-oidc';
 import { AppService } from 'app/app.service';
-import { catchError, map, scan } from 'rxjs/operators';
-import { saveAs } from 'file-saver';
+import { scan } from 'rxjs/operators';
 import { Saver, SAVER } from './saver.provider';
-import { element } from 'protractor';
 import { ToastrService } from 'ngx-toastr';
 
 export interface Download {
@@ -36,10 +33,10 @@ export class BucketService {
 
   public things: Array<Thing> = [];
 
-  find(): Promise<Thing[]> {
+  find(): Observable<Thing[]> {
     const url = this.apiURL + '/things';
     const headers = this.getHeader()
-    return this.http.get<Thing[]>(url, { headers }).toPromise()
+    return this.http.get<Thing[]>(url, { headers })
   }
 
   getProperties(thingId: string): Promise<Property[]> {
@@ -63,7 +60,7 @@ export class BucketService {
 
   }
 
-  getPropertyValues(thingId: string, propertyId: string, options: ValueOptions, csvFormat: boolean): Promise<Blob> {
+  getPropertyValuesCSV(thingId: string, propertyId: string, options: ValueOptions): Promise<Blob> {
     const url = this.apiURL + '/things/' + thingId + '/properties/' + propertyId;
     const params = new HttpParams()
       .set('from', options.from + '')
@@ -78,8 +75,34 @@ export class BucketService {
       params.set('fill', options.fill)
     }
     let headers = this.getHeader()
-    headers = headers.set('Accept', csvFormat ? 'text/csv' : 'application/json')
+    headers = headers.set('Accept', 'text/csv')
     return this.http.get(url, { headers, params, responseType: 'blob' as 'blob' }).toPromise()
+  }
+
+  getPropertyMedia(thingId: string, propertyId: string, dimensionId: string, ts: number, mime: string): Observable<Blob> {
+    const url = this.apiURL + '/things/' + thingId + '/properties/' + propertyId + "/dimensions/" + dimensionId + "/timestamp/" + ts;
+    let headers = this.getHeader()
+    headers = headers.set('Accept', mime)
+    return this.http.get(url, { headers, responseType: 'blob' as 'blob' })
+  }
+
+  getPropertyValues(thingId: string, propertyId: string, options: ValueOptions): Promise<Property> {
+    const url = this.apiURL + '/things/' + thingId + '/properties/' + propertyId;
+    const params = new HttpParams()
+      .set('from', options.from + '')
+      .set('to', options.to + '')
+    if (options.fctInterval !== undefined) {
+      params.set('fctInterval', options.fctInterval + '')
+    }
+    if (options.timeInterval !== undefined) {
+      params.set('timeInterval', options.timeInterval)
+    }
+    if (options.fill !== undefined) {
+      params.set('fill', options.fill)
+    }
+    let headers = this.getHeader()
+    headers = headers.set('Accept', 'application/json')
+    return this.http.get(url, { headers, params }).toPromise() as Promise<Property>
   }
 
   createThing(thing: DTOThing): Promise<Thing> {
@@ -177,25 +200,26 @@ export class BucketService {
     return this.http.get(url, { headers }).toPromise()
   }
 
-  async getPropertyTypes(): Promise<PropertyType[]> {
-    if (this.propertyTypes) {
-      return Promise.resolve(this.propertyTypes)
-    }
+  getPropertyTypes(): Observable<PropertyType[]> {
+    return new Observable<PropertyType[]>((observer) => {
+      if (this.propertyTypes) {
+        observer.next(this.propertyTypes)
+      } else {
+        const url = this.apiURL + '/types';
+        const headers = this.getHeader()
 
-    const url = this.apiURL + '/types';
-    const headers = this.getHeader()
-
-    await this.http
-      .get<PropertyType[]>(url, { headers })
-      .subscribe(
-        propertyTypes => {
-          this.propertyTypes = propertyTypes;
-        },
-        err => {
-          console.warn('status', err.status);
-        }
-      );
-    return Promise.resolve(this.propertyTypes)
+        this.http.get<PropertyType[]>(url, { headers })
+          .subscribe(
+            propertyTypes => {
+              this.propertyTypes = propertyTypes.sort((first, second) => 0 - (first.name > second.name ? -1 : 1));
+              observer.next(this.propertyTypes)
+            },
+            err => {
+              observer.error(err);
+            }
+          );
+      }
+    })
   }
 
   csvFileUpload(thingId: string, propertyId: string, fileToUpload: File, hasLabel: boolean): Promise<any> {
@@ -408,7 +432,7 @@ export function downloadTakeout(
           if (saver && event.body) {
             saver(event.body)
           }
-          
+
           const bar: HTMLElement = document.getElementById('nav-progress-bar')
           if (bar) {
             bar.style.display = 'none'

@@ -6,11 +6,10 @@ import { AuthGuard } from './auth/auth.guard';
 @NgModule({
   imports: [
     FormsModule, // [(ngModel)]
-    CommonModule // ngFor, ngIf, ngStyle, ngClass, date, json
+    CommonModule, // ngFor, ngIf, ngStyle, ngClass, date, json
   ],
   providers: [],
   declarations: [
-
   ],
   exports: [
 

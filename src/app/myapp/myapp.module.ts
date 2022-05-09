@@ -12,6 +12,10 @@ import { BucketService } from './services/bucket.service';
 import { SAVER, getSaver } from './services/saver.provider';
 import { ThingsComponent } from './things/things.component';
 import { ScriptService } from './services/script.service';
+import { NgChartsModule } from 'ng2-charts';
+import { EventService } from './services/event.service';
+import { LineChartComponent } from './linechart/linechart.component';
+import { VideoComponent } from './video/video.component';
 
 @NgModule({
   imports: [
@@ -20,13 +24,17 @@ import { ScriptService } from './services/script.service';
     NgbModule,
     ReactiveFormsModule,
     MyAppRouterModule,
+    NgChartsModule
   ],
   declarations: [
     DashboardComponent,
+    LineChartComponent,
+    VideoComponent,
     ThingsComponent
   ],
   providers: [
     BucketService,
+    EventService,
     ScriptService,
     {provide: SAVER, useFactory: getSaver}
   ],

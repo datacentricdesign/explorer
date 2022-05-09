@@ -1,6 +1,9 @@
-
-<div class="row">
-  <div class="col-lg-12 col-md-12 col-sm-12">
-    <app-things></app-things>
+<div *ngFor="let property of properties; let iProperty = index">
+  <div *ngIf="property.type.id==='VIDEO'; else elseBlock">
+    <app-video-cmp id="{{property.id}}" [propertyId]="property.id" [thingId]="property.thing.id"></app-video-cmp>
   </div>
+  <ng-template #elseBlock>
+    <app-linechart-cmp id="{{property.id}}" [propertyId]="property.id" [thingId]="property.thing.id"></app-linechart-cmp>
+  </ng-template>
 </div>
+

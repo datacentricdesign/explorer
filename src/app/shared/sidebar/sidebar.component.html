@@ -9,12 +9,26 @@
       DCD Lab Angular
     </a>
   </div>
-  <ul class="nav">
+
+  <div *ngIf="things$ | async as things else noData">
+    <form>
+      <div class="form-group">
+        <label for="things">Select a Thing or Property to explore</label>
+        <select class="form-control" id="things" (change)="selectThing($event.target.value);">
+          <option *ngFor="let thing of things" [value]="thing.id">{{thing.name}}</option>
+        </select>
+      </div>
+    </form>
+  </div>
+
+  <ng-template #noData>No Thing available</ng-template>
+
+  <!-- <ul class="nav">
     <li *ngFor="let menuItem of menuItems" routerLinkActive="active" class="{{menuItem.class}}">
       <a [routerLink]="[menuItem.path]">
         <i class="nc-icon {{menuItem.icon}} {{menuItem.type}}"></i>
         <p>{{menuItem.title}}</p>
       </a>
     </li>
-  </ul>
+  </ul> -->
 </div>

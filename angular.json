@@ -11,6 +11,8 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
+            "baseHref": "http://localhost:4200/myapp/",
+            "deployUrl": "/myapp/",
             "outputPath": "dist",
             "index": "src/index.html",
             "main": "src/main.ts",

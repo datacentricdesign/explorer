@@ -10,8 +10,8 @@
       </div>
       <a class="navbar-brand" href="javascript:void(0)">{{getTitle()}}</a>
     </div>
-    <button class="navbar-toggler" type="button" (click)="collapse()"
-      [attr.aria-expanded]="!isCollapsed" aria-controls="collapseExample">
+    <button class="navbar-toggler" type="button" (click)="collapse()" [attr.aria-expanded]="!isCollapsed"
+      aria-controls="collapseExample">
       <span class="navbar-toggler-bar navbar-kebab"></span>
       <span class="navbar-toggler-bar navbar-kebab"></span>
       <span class="navbar-toggler-bar navbar-kebab"></span>
@@ -31,16 +31,56 @@
         <div class="progress-bar progress-bar-info" id="nav-progress" role="progressbar"></div>
       </div>
       <div id="nav-spinner" style="display: none;" class="spinner">
-          <div class="rect1"></div>
-          <div class="rect2"></div>
-          <div class="rect3"></div>
-          <div class="rect4"></div>
-          <div class="rect5"></div>
+        <div class="rect1"></div>
+        <div class="rect2"></div>
+        <div class="rect3"></div>
+        <div class="rect4"></div>
+        <div class="rect5"></div>
       </div>
+
+
+      <mat-form-field style="width:100px;margin:3px">
+        <input class="form-control" id="start-date" matInput [matDatepicker]="pickerStart" placeholder="Start date"
+          [(ngModel)]="model.startDate" name="startDate" #startDate="ngModel">
+        <mat-datepicker-toggle matSuffix [for]="pickerStart"></mat-datepicker-toggle>
+        <mat-datepicker #pickerStart></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field style="width:80px;margin:3px">
+        <input class="form-control" id="start-time" matInput placeholder="Start time" [(ngModel)]="model.startTime"
+          name="startTime" #startTime="ngModel">
+      </mat-form-field>
+
+      <mat-form-field style="width:100px;margin:3px">
+        <input class="form-control" id="end-date" matInput [matDatepicker]="pickerEnd" placeholder="End date"
+          [(ngModel)]="model.endDate" name="endDate" #endDate="ngModel">
+        <mat-datepicker-toggle matSuffix [for]="pickerEnd"></mat-datepicker-toggle>
+        <mat-datepicker #pickerEnd></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field style="width:80px;margin:3px">
+        <input class="form-control" id="end-time" matInput placeholder="End time" [(ngModel)]="model.endTime"
+          name="endTime" #endTime="ngModel">
+      </mat-form-field>
+
+      <button id="apply-absolute-range" class="btn btn-info" (click)="selectAbsoluteTimeRange()">
+        Apply
+      </button>
+
+
+      <mat-form-field>
+        <mat-select placeholder="Relative time" id="period" (change)="selectRelativeTimeRange($event.target.value);"
+          name="period">
+          <mat-option *ngFor="let period of periods | keyvalue" [value]="period.key">
+            {{period.value.nameDuration}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
       <ul class="navbar-nav">
 
         <li class="nav-item btn-rotate" ngbDropdown placement="bottom-left">
-          <a class="nav-link" ngbDropdownToggle id="navbarDropdownMenuLink" >
+          <a class="nav-link" ngbDropdownToggle id="navbarDropdownMenuLink">
             <i class="nc-icon nc-single-02"></i>
             <p>
               <span class="d-lg-none d-md-block">User</span>

@@ -1,11 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
-import { Thing } from '@datacentricdesign/types';
 import { catchError, map } from 'rxjs/operators';
-import { AppService } from 'app/app.service';
-import { OAuthService } from 'angular-oauth2-oidc';
 import { BucketService } from 'app/myapp/services/bucket.service';
+import { PropertyType, Thing } from '@datacentricdesign/types';
+import { EventService } from 'app/myapp/services/event.service';
+import { AppEvent, AppEventType } from 'app/myapp/services/app.event.class';
 
 export interface RouteInfo {
     path: string;
@@ -14,9 +13,7 @@ export interface RouteInfo {
     class: string;
 }
 
-const dashboardRoute = { path: '/dashboard', title: 'Dashboard', icon: 'nc-layout-11', class: '' }
-
-export const ROUTES: RouteInfo[] = [dashboardRoute];
+export const ROUTES: RouteInfo[] = [];
 
 @Component({
     moduleId: module.id,
@@ -29,9 +26,24 @@ export class SidebarComponent implements OnInit {
     public menuItems: any[];
     serviceSubscription: any
 
-    constructor(private bucketService: BucketService) { }
+    public things$: Observable<Thing[]>
+    public things: Thing[]
+
+    constructor(private bucketService: BucketService, private eventService: EventService) { }
 
     ngOnInit() {
         this.menuItems = ROUTES.filter(menuItem => menuItem);
+        this.things$ = this.bucketService.find().pipe(
+            map((data: Thing[]) => {
+                this.things = data
+                return this.things;
+            }), catchError(error => {
+                return throwError('Types not found!');
+            })
+        )
     }
+
+    selectThing(thingId:string) {
+        this.eventService.dispatch(new AppEvent(AppEventType.SelectedThing, thingId));
+      }
 }
